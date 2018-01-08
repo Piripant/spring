@@ -1,0 +1,11 @@
+[package]
+name = "spring"
+version = "0.1.0"
+authors = ["Piripant <piripant@gmail.com>"]
+
+[dependencies]
+gfx = "0.16"
+imgui = "0.0.17"
+imgui-sys = { version = "0.0.17", features = ["gfx"] }
+piston_window = "0.74.0"
+nalgebra = "0.13.1"
