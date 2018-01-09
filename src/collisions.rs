@@ -76,14 +76,12 @@ fn get_colliding_poly(quad: [&Vector; 4], segment: [&Vector; 2]) -> bool {
         let ni = (i + 1) % quad.len();
 
         if get_crossing(segment[0], segment[1], quad[i], quad[ni]) {
-            println!("get_crossing");
             return true;
         }
     }
 
     for i in 0..2 {
         if get_inside(quad, segment[i]) {
-            println!("get_inside");
             return true;
         }
     }

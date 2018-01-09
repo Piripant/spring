@@ -271,7 +271,9 @@ impl World {
                 }
             }
 
-            self.resolve_collisions(dt);
+            for _ in 0..iterations {
+                self.resolve_collisions(dt);
+            }
 
             for i in 0..self.verts.len() {
                 let mut vertex = self.verts[i].borrow_mut();
