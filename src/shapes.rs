@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use nalgebra::Vector2;
-use physics::world::{Vertex, World};
+use physics::simulation::{Vertex, World};
 
 pub fn make_polygon(world: &mut World, center: Vector2<f64>, radius: f64, num_verts: usize) {
     for i in 0..num_verts {

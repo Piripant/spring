@@ -4,7 +4,7 @@ pub mod imgui_piston;
 pub mod ui;
 
 use Vector;
-use physics::world::{Vertex, World};
+use physics::simulation::{Vertex, World};
 
 pub enum EditMode {
     Select,
