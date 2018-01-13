@@ -1,4 +1,4 @@
-use physics::{DebugView, Vertex};
+use physics::world::{DebugView, Vertex};
 use nalgebra::Vector2;
 use Vector;
 

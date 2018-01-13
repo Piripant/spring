@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use Vector;
 
-use collisions;
+use physics::collisions;
 
 pub struct DebugView {
     pub vectors: Vec<(Vector, Vector)>,
