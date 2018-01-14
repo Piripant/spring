@@ -25,7 +25,7 @@ impl Surface {
             damping_ratio: 1.0,
             strength: 40.0,
             original_distance: (vertex_a.position - vertex_b.position).norm(),
-            friction: 0.0,
+            friction: 1.0,
             resitution: 1.0,
         }
     }

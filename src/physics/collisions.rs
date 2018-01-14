@@ -115,19 +115,24 @@ pub fn resolve_impulses(vertex: &mut Vertex, a: &mut Vertex, b: &mut Vertex) {
     let segment_vel =
         (a.velocity * a.mass as f64 + b.velocity * b.mass as f64) / segment_mass as f64;
 
+    let normal_velocity = (vertex.velocity - segment_vel).dot(&normal);
 
-    let j = -(1.0 + e) * ((vertex.velocity - segment_vel).dot(&normal))
-        / (1.0 / vertex.mass + 1.0 / segment_mass) as f64;
+    // Resolve the collision bounce
+    let j = -(1.0 + e) * normal_velocity / (1.0 / vertex.mass + 1.0 / segment_mass) as f64;
     let impulse = j * normal;
-
-    vertex.velocity += impulse / vertex.mass as f64;
 
     let distance_ratio_ab =
         (b.position - vertex.position).norm() / (a.position - b.position).norm();
     let distance_ratio_ba = 1.0 - distance_ratio_ab;
 
-    a.velocity += -impulse * distance_ratio_ab / a.mass as f64;
-    b.velocity += -impulse * distance_ratio_ba / b.mass as f64;
+    // Resolve the collision friction
+    let tangent_vector = tangent(&vertex.velocity, &a.position, &b.position);
+    let normal_force = -tangent_vector * normal_velocity;
+
+    // Assign the new after-collision velocities
+    vertex.velocity += impulse / vertex.mass as f64 + normal_force * vertex.mass as f64;
+    a.velocity += -impulse * distance_ratio_ab / a.mass as f64 - normal_force * a.mass as f64;
+    b.velocity += -impulse * distance_ratio_ba / b.mass as f64 - normal_force * b.mass as f64;
 
     if !vertex.is_static {
         vertex.position += normal * VERTEX_RADIUS / 2.0;
@@ -152,6 +157,17 @@ pub fn normal(vertex: &Vector2<f64>, a: &Vector2<f64>, b: &Vector2<f64>) -> Vect
         normal
     } else {
         -normal
+    }
+}
+
+#[inline]
+pub fn tangent(direction: &Vector2<f64>, a: &Vector2<f64>, b: &Vector2<f64>) -> Vector2<f64> {
+    let tangent = (a - b).normalize();
+
+    if tangent.x.signum() != direction.x.signum() || tangent.y.signum() != direction.y.signum() {
+        tangent
+    } else {
+        -tangent
     }
 }
 
