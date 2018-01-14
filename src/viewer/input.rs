@@ -145,21 +145,21 @@ fn handle_select(view: &mut ViewState, button: &MouseButton, mouse_position: &Ve
                 vertex.apply_force(force);
             } else {
                 // Move the selected vertex ON the cursor
-                let joints = view.world.get_vertex_joints(index);
+                let surfaces = view.world.get_vertex_surfaces(index);
                 let mut vertex = view.world.verts[index].borrow_mut();
                 vertex.position = *mouse_position;
 
-                // Adjust the joint distances accordingly
-                for i in joints {
-                    let joint = &mut view.world.joints[i];
+                // Adjust the surface distances accordingly
+                for i in surfaces {
+                    let surface = &mut view.world.surfaces[i];
 
-                    let other_vertex = if joint.index_a == index {
-                        view.world.verts[joint.index_b].borrow()
+                    let other_vertex = if surface.index_a == index {
+                        view.world.verts[surface.index_b].borrow()
                     } else {
-                        view.world.verts[joint.index_a].borrow()
+                        view.world.verts[surface.index_a].borrow()
                     };
 
-                    joint.original_distance = (vertex.position - other_vertex.position).norm();
+                    surface.original_distance = (vertex.position - other_vertex.position).norm();
                 }
             }
         }
@@ -171,12 +171,12 @@ fn handle_edit(view: &mut ViewState, button: &MouseButton, mouse_position: &Vect
         MouseButton::Left => {
             let clicked_vertex = view.world
                 .get_vertex_at(mouse_position, view.vertex_scale * 2.0);
-            // If the user clicked on vertex make a joint
+            // If the user clicked on vertex make a surface
             if let Some(index) = clicked_vertex {
-                // If there was an vertex already selected make a joint
+                // If there was an vertex already selected make a surface
                 if let Some(sel_index) = view.sel_vertex {
                     if sel_index != index {
-                        view.world.create_joint(index, sel_index);
+                        view.world.create_surface(index, sel_index);
                     }
                 }
             }
@@ -194,10 +194,10 @@ fn handle_edit(view: &mut ViewState, button: &MouseButton, mouse_position: &Vect
                 view.world.remove_vertex(vertex_index);
                 view.sel_vertex = None;
             } else {
-                // Remove the clicked joint if any
-                let clicked_joint = view.world.get_joint_at(mouse_position, 0.5);
-                if let Some(joint_index) = clicked_joint {
-                    view.world.joints.remove(joint_index);
+                // Remove the clicked surface if any
+                let clicked_surface = view.world.get_surface_at(mouse_position, 0.5);
+                if let Some(surface_index) = clicked_surface {
+                    view.world.surfaces.remove(surface_index);
                 }
             }
         }

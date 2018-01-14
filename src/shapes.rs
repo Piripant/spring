@@ -26,9 +26,9 @@ pub fn make_polygon(world: &mut World, center: Vector2<f64>, radius: f64, num_ve
             next_index = 0;
         }
 
-        world.create_joint(i, next_index);
+        world.create_surface(i, next_index);
         if len - 1 != i {
-            world.create_joint(i, len - 1);
+            world.create_surface(i, len - 1);
         }
     }
 }

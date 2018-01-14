@@ -65,10 +65,10 @@ pub fn view_loop(mut view: ViewState) {
                 window.draw_2d(&e, |c, g| {
                     clear([1.0; 4], g);
 
-                    // Drawing the joints
-                    for joint in &view.world.joints {
-                        let vertex_a = view.world.verts[joint.index_a].borrow();
-                        let vertex_b = view.world.verts[joint.index_b].borrow();
+                    // Drawing the surfaces
+                    for surface in &view.world.surfaces {
+                        let vertex_a = view.world.verts[surface.index_a].borrow();
+                        let vertex_b = view.world.verts[surface.index_b].borrow();
 
                         let position_a = view.to_screen_point(&vertex_a.position);
                         let position_b = view.to_screen_point(&vertex_b.position);

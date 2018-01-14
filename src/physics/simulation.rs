@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use Vector;
 
 use physics::collisions;
-use physics::surface::Joint;
+use physics::surface::Surface;
 
 pub struct DebugView {
     pub vectors: Vec<(Vector, Vector)>,
@@ -51,7 +51,7 @@ impl Vertex {
 
 pub struct World {
     pub verts: Vec<RefCell<Vertex>>,
-    pub joints: Vec<Joint>,
+    pub surfaces: Vec<Surface>,
     pub debug: DebugView,
 }
 
@@ -59,7 +59,7 @@ impl World {
     pub fn new() -> World {
         World {
             verts: Vec::new(),
-            joints: Vec::new(),
+            surfaces: Vec::new(),
             debug: DebugView {
                 vectors: Vec::new(),
             },
@@ -83,18 +83,18 @@ impl World {
     pub fn remove_vertex(&mut self, index: usize) {
         self.verts.remove(index);
 
-        // If there is a joint with the vertex remove it
+        // If there is a surface with the vertex remove it
         let mut i = 0;
-        while i < self.joints.len() {
-            if self.joints[i].index_a == index || self.joints[i].index_b == index {
-                self.joints.remove(i);
+        while i < self.surfaces.len() {
+            if self.surfaces[i].index_a == index || self.surfaces[i].index_b == index {
+                self.surfaces.remove(i);
             } else {
-                // Shift all joints indexes after the removed element
-                if self.joints[i].index_a > index {
-                    self.joints[i].index_a -= 1;
+                // Shift all surfaces indexes after the removed element
+                if self.surfaces[i].index_a > index {
+                    self.surfaces[i].index_a -= 1;
                 }
-                if self.joints[i].index_b > index {
-                    self.joints[i].index_b -= 1;
+                if self.surfaces[i].index_b > index {
+                    self.surfaces[i].index_b -= 1;
                 }
 
                 i += 1;
@@ -121,23 +121,23 @@ impl World {
       ####   ####  # #    #   #    ####  
     */
 
-    pub fn get_vertex_joints(&mut self, index: usize) -> Vec<usize> {
-        let mut joints = Vec::new();
-        for joint_i in 0..self.joints.len() {
-            let joint = &self.joints[joint_i];
-            if joint.index_a == index || joint.index_b == index {
-                joints.push(joint_i);
+    pub fn get_vertex_surfaces(&mut self, index: usize) -> Vec<usize> {
+        let mut surfaces = Vec::new();
+        for surface_i in 0..self.surfaces.len() {
+            let surface = &self.surfaces[surface_i];
+            if surface.index_a == index || surface.index_b == index {
+                surfaces.push(surface_i);
             }
         }
-        joints
+        surfaces
     }
 
-    pub fn get_joint_at(&mut self, position: &Vector, radius: f64) -> Option<usize> {
-        for index in 0..self.joints.len() {
-            let joint = &mut self.joints[index];
+    pub fn get_surface_at(&mut self, position: &Vector, radius: f64) -> Option<usize> {
+        for index in 0..self.surfaces.len() {
+            let surface = &mut self.surfaces[index];
 
-            let a = self.verts[joint.index_a].borrow_mut();
-            let b = self.verts[joint.index_b].borrow_mut();
+            let a = self.verts[surface.index_a].borrow_mut();
+            let b = self.verts[surface.index_b].borrow_mut();
 
             let delta = position - a.position;
             let segment = a.position - b.position;
@@ -154,7 +154,7 @@ impl World {
         None
     }
 
-    pub fn create_joint(&mut self, index_a: usize, index_b: usize) {
+    pub fn create_surface(&mut self, index_a: usize, index_b: usize) {
         use std::usize;
 
         if index_a == index_b {
@@ -166,15 +166,15 @@ impl World {
         let ord_b = usize::max(index_a, index_b);
 
 
-        // If the joint is not already present
-        for joint in &self.joints {
-            if joint.index_a == ord_a && joint.index_b == ord_b {
+        // If the surface is not already present
+        for surface in &self.surfaces {
+            if surface.index_a == ord_a && surface.index_b == ord_b {
                 return;
             }
         }
 
-        // Add the joint to the joints
-        self.joints.push(Joint::new(ord_a, ord_b, &mut self.verts));
+        // Add the surface to the surfaces
+        self.surfaces.push(Surface::new(ord_a, ord_b, &mut self.verts));
     }
 
     /*
@@ -188,12 +188,12 @@ impl World {
 
     pub fn resolve_collisions(&mut self, dt: f64) {
         for vertex_i in 0..self.verts.len() {
-            for joint_i in 0..self.joints.len() {
-                let joint = &mut self.joints[joint_i];
-                if joint.index_a != vertex_i && joint.index_b != vertex_i {
+            for surface_i in 0..self.surfaces.len() {
+                let surface = &mut self.surfaces[surface_i];
+                if surface.index_a != vertex_i && surface.index_b != vertex_i {
                     let mut vertex = self.verts[vertex_i].borrow_mut();
-                    let mut segment_a = self.verts[joint.index_a].borrow_mut();
-                    let mut segment_b = self.verts[joint.index_b].borrow_mut();
+                    let mut segment_a = self.verts[surface.index_a].borrow_mut();
+                    let mut segment_b = self.verts[surface.index_b].borrow_mut();
 
                     if collisions::colliding(&vertex, &segment_a, &segment_b, dt) {
                         collisions::resolve_impulses(&mut vertex, &mut segment_a, &mut segment_b);
@@ -206,8 +206,8 @@ impl World {
     pub fn update(&mut self, dt: f64, iterations: u32) {
         let dt = dt / iterations as f64;
         for _ in 0..iterations {
-            for joint in &self.joints {
-                joint.apply_force(&mut self.verts);
+            for surface in &self.surfaces {
+                surface.apply_force(&mut self.verts);
             }
 
             for i in 0..self.verts.len() {

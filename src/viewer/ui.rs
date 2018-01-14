@@ -12,7 +12,7 @@ pub fn run_ui(ui: &mut Ui, view: &mut ViewState) -> (bool, bool) {
         .build(|| {
             ui.text(im_str!("Physics framerate: {}", 1.0 / view.physics_dt));
             ui.text(im_str!("Bodies: {}", view.world.verts.len()));
-            ui.text(im_str!("Joints: {}", view.world.joints.len()));
+            ui.text(im_str!("Surfaces: {}", view.world.surfaces.len()));
 
             ui.separator();
 
