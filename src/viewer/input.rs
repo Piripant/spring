@@ -10,6 +10,7 @@ pub struct InputState {
     pub mouse_wheel: f64,
     pub pressed_keys: Vec<Key>,
     pub held_keys: Vec<Key>,
+    pub released_keys: Vec<Key>,
 }
 
 impl InputState {
@@ -21,6 +22,7 @@ impl InputState {
             mouse_wheel: 0.0,
             pressed_keys: Vec::new(),
             held_keys: Vec::new(),
+            released_keys: Vec::new(),
         }
     }
 
@@ -38,6 +40,9 @@ impl InputState {
             let key = self.pressed_keys.remove(0);
             self.held_keys.push(key);
         }
+
+        // Remove all the released keys
+        self.released_keys.clear();
 
         self.mouse_wheel = 0.0;
     }
@@ -76,6 +81,8 @@ impl InputState {
                     break;
                 }
             }
+
+            self.released_keys.push(key);
         }
 
         if let Some(Button::Mouse(button)) = e.press_args() {

@@ -7,6 +7,7 @@ use piston_window::*;
 pub fn run_ui(ui: &mut Ui, view: &mut ViewState) -> (bool, bool) {
     let mut sim_speed = view.sim_speed as f32;
     let mut vertex_scale = view.vertex_scale as f32;
+
     ui.window(im_str!("Simulation Settings"))
         .size((300.0, 100.0), ImGuiCond::FirstUseEver)
         .build(|| {
@@ -83,32 +84,42 @@ pub fn configure_keys(imgui: &mut ImGui) {
 }
 
 pub fn update_keyboard(imgui: &mut ImGui, input: &InputState) {
-    for key in &input.pressed_keys {
+    set_keys(imgui, &input.pressed_keys, true);
+    set_keys(imgui, &input.released_keys, false);
+}
+
+fn set_keys(imgui: &mut ImGui, keys: &Vec<Key>, state: bool) {
+    for key in keys {
         match *key {
-            Key::Tab => imgui.set_key(0, true),
-            Key::Left => imgui.set_key(1, true),
-            Key::Right => imgui.set_key(2, true),
-            Key::Up => imgui.set_key(3, true),
-            Key::Down => imgui.set_key(4, true),
-            Key::PageUp => imgui.set_key(5, true),
-            Key::PageDown => imgui.set_key(6, true),
-            Key::Home => imgui.set_key(7, true),
-            Key::End => imgui.set_key(8, true),
-            Key::Delete => imgui.set_key(9, true),
-            Key::Backspace => imgui.set_key(10, true),
-            Key::Return => imgui.set_key(11, true),
-            Key::Escape => imgui.set_key(12, true),
-            Key::A => imgui.set_key(13, true),
-            Key::C => imgui.set_key(14, true),
-            Key::V => imgui.set_key(15, true),
-            Key::X => imgui.set_key(16, true),
-            Key::Y => imgui.set_key(17, true),
-            Key::Z => imgui.set_key(18, true),
-            Key::LCtrl | Key::RCtrl => imgui.set_key_ctrl(true),
-            Key::LShift | Key::RShift => imgui.set_key_shift(true),
-            Key::LAlt | Key::RAlt => imgui.set_key_alt(true),
-            //Key::LWin | Key::RWin => imgui.set_key_super(true),
+            Key::Tab => imgui.set_key(0, state),
+            Key::Left => imgui.set_key(1, state),
+            Key::Right => imgui.set_key(2, state),
+            Key::Up => imgui.set_key(3, state),
+            Key::Down => imgui.set_key(4, state),
+            Key::PageUp => imgui.set_key(5, state),
+            Key::PageDown => imgui.set_key(6, state),
+            Key::Home => imgui.set_key(7, state),
+            Key::End => imgui.set_key(8, state),
+            Key::Delete => imgui.set_key(9, state),
+            Key::Backspace => imgui.set_key(10, state),
+            Key::Return => imgui.set_key(11, state),
+            Key::Escape => imgui.set_key(12, state),
+            Key::A => imgui.set_key(13, state),
+            Key::C => imgui.set_key(14, state),
+            Key::V => imgui.set_key(15, state),
+            Key::X => imgui.set_key(16, state),
+            Key::Y => imgui.set_key(17, state),
+            Key::Z => imgui.set_key(18, state),
+            Key::LCtrl | Key::RCtrl => imgui.set_key_ctrl(state),
+            Key::LShift | Key::RShift => imgui.set_key_shift(state),
+            Key::LAlt | Key::RAlt => imgui.set_key_alt(state),
+            //Key::LWin | Key::RWin => imgui.set_key_super(state),
             _ => {}
+        }
+
+        if key.code() as u8 <= 127 && state {
+            let code = key.code() as u8;
+            imgui.add_input_character(code as char);
         }
     }
 }

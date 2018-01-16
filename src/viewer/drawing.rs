@@ -45,12 +45,7 @@ pub fn view_loop(mut view: ViewState) {
         // When the window is resize the gui renderer must be regeretated
         // With the new window.factory containing the new height and width
         if let Some(_args) = e.resize_args() {
-            gui_renderer = Renderer::init(
-                &mut gui,
-                &mut window.factory,
-                Shaders::GlSl130,
-                window.output_color.clone(),
-            ).expect("Failed to initialize GUI renderer");
+            gui_renderer.update_render_target(window.output_color.clone());
         }
 
 
@@ -116,6 +111,8 @@ pub fn view_loop(mut view: ViewState) {
                     line([0.0, 0.0, 0.0, 1.0], 1.0, ground_line, c.transform, g);
                 });
 
+                // Process UI input
+                ui::update_keyboard(&mut gui, &input_state);
                 ui::update_mouse(&mut gui, window.size(), window.draw_size(), &input_state);
                 let mut ui = gui.frame(
                     (args.draw_width, args.draw_height),
