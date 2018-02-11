@@ -188,15 +188,14 @@ impl World {
 
     pub fn resolve_collisions(&mut self, dt: f64) {
         for vertex_i in 0..self.verts.len() {
-            for surface_i in 0..self.surfaces.len() {
-                let surface = &mut self.surfaces[surface_i];
+            for surface in &self.surfaces {
                 if surface.index_a != vertex_i && surface.index_b != vertex_i {
                     let mut vertex = self.verts[vertex_i].borrow_mut();
                     let mut segment_a = self.verts[surface.index_a].borrow_mut();
                     let mut segment_b = self.verts[surface.index_b].borrow_mut();
 
                     if collisions::colliding(&vertex, &segment_a, &segment_b, dt) {
-                        collisions::resolve_impulses(&mut vertex, &mut segment_a, &mut segment_b);
+                        collisions::resolve_impulses(&mut vertex, &mut segment_a, &mut segment_b, surface);
                     }
                 }
             }
@@ -229,14 +228,7 @@ impl World {
 
             for i in 0..self.verts.len() {
                 let mut vertex = self.verts[i].borrow_mut();
-
                 vertex.update(dt);
-
-                if vertex.position.y < 0.0 {
-                    vertex.position.y = 0.0;
-                    vertex.velocity.y = -vertex.velocity.y;
-                    vertex.velocity.x *= 6.0 * dt;
-                }
             }
         }
     }

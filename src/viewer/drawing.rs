@@ -105,10 +105,6 @@ pub fn view_loop(mut view: ViewState) {
 
                         line([0.0, 1.0, 1.0, 1.0], 1.0, line_data, c.transform, g);
                     }
-
-                    let y = view.to_screen_point(&Vector::new(0.0, 0.0)).y;
-                    let ground_line = [0.0, y, args.draw_width as f64, y];
-                    line([0.0, 0.0, 0.0, 1.0], 1.0, ground_line, c.transform, g);
                 });
 
                 // Process UI input

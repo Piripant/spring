@@ -1,8 +1,9 @@
 use physics::simulation::{DebugView, Vertex};
+use physics::surface::Surface;
 use nalgebra::Vector2;
 use Vector;
 
-const VERTEX_RADIUS: f64 = 0.01;
+const VERTEX_RADIUS: f64 = 0.005;
 
 #[inline]
 fn cross(a: Vector2<f64>, b: Vector2<f64>) -> f64 {
@@ -99,14 +100,20 @@ pub fn colliding(vertex: &Vertex, a: &Vertex, b: &Vertex, dt: f64) -> bool {
 
     let segment = [&vertex.position, &vertex.next_position(dt)];
 
-    get_colliding_poly(quad, segment)
-        || (distance_vector(&vertex.position, &a.position, &b.position).abs() < VERTEX_RADIUS
-            && inside_box(&vertex.position, &a.position, &b.position))
+    let colliding_poly = get_colliding_poly(quad, segment);
+    let colliding_segment = distance_vector(&vertex.position, &a.position, &b.position).abs()
+        < VERTEX_RADIUS
+        && inside_box(&vertex.position, &a.position, &b.position);
+    let colliding_vertex = (vertex.position - a.position).norm() < VERTEX_RADIUS
+        || (vertex.position - b.position).norm() < VERTEX_RADIUS;
+
+
+    colliding_poly || colliding_segment || colliding_vertex
 }
 
 
 /// Resolves the impulses between a `vertex` and a segment `ab`
-pub fn resolve_impulses(vertex: &mut Vertex, a: &mut Vertex, b: &mut Vertex) {
+pub fn resolve_impulses(vertex: &mut Vertex, a: &mut Vertex, b: &mut Vertex, surface: &Surface) {
     let e = 1.0;
 
     let normal = normal(&vertex.position, &a.position, &b.position);
@@ -126,13 +133,23 @@ pub fn resolve_impulses(vertex: &mut Vertex, a: &mut Vertex, b: &mut Vertex) {
     let distance_ratio_ba = 1.0 - distance_ratio_ab;
 
     // Resolve the collision friction
-    let tangent_vector = tangent(&vertex.velocity, &a.position, &b.position);
-    let normal_force = -tangent_vector * normal_velocity;
+    let tangent = tangent(&vertex.velocity, &a.position, &b.position);
+    let tangent_velocity = (vertex.velocity - segment_vel).dot(&tangent);
+    let coeff = surface.friction as f64;
+
+    // Make the friction only stop the body and not make it go backwards
+    let friction = {
+        tangent * if normal_velocity.abs() * coeff < tangent_velocity.abs() {
+            normal_velocity.abs() * coeff
+        } else {
+            tangent_velocity
+        }
+    };
 
     // Assign the new after-collision velocities
-    vertex.velocity += impulse / vertex.mass as f64 + normal_force * vertex.mass as f64;
-    a.velocity += -impulse * distance_ratio_ab / a.mass as f64 - normal_force * a.mass as f64;
-    b.velocity += -impulse * distance_ratio_ba / b.mass as f64 - normal_force * b.mass as f64;
+    vertex.velocity += impulse / vertex.mass as f64 - friction;
+    a.velocity += -impulse * distance_ratio_ab / a.mass as f64 + friction;
+    b.velocity += -impulse * distance_ratio_ba / b.mass as f64 + friction;
 
     if !vertex.is_static {
         vertex.position += normal * VERTEX_RADIUS / 2.0;
@@ -163,8 +180,9 @@ pub fn normal(vertex: &Vector2<f64>, a: &Vector2<f64>, b: &Vector2<f64>) -> Vect
 #[inline]
 pub fn tangent(direction: &Vector2<f64>, a: &Vector2<f64>, b: &Vector2<f64>) -> Vector2<f64> {
     let tangent = (a - b).normalize();
+    let dot = direction.dot(&tangent);
 
-    if tangent.x.signum() != direction.x.signum() || tangent.y.signum() != direction.y.signum() {
+    if dot > 0.0 {
         tangent
     } else {
         -tangent
