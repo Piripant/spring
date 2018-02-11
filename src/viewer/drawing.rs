@@ -61,7 +61,7 @@ pub fn view_loop(mut view: ViewState) {
                     clear([1.0; 4], g);
 
                     // Drawing the surfaces
-                    for surface in &view.world.surfaces {
+                    for (i, surface) in view.world.surfaces.iter().enumerate() {
                         let vertex_a = view.world.verts[surface.index_a].borrow();
                         let vertex_b = view.world.verts[surface.index_b].borrow();
 
@@ -70,7 +70,15 @@ pub fn view_loop(mut view: ViewState) {
 
                         let line_data = [position_a.x, position_a.y, position_b.x, position_b.y];
 
-                        line([1.0, 0.0, 0.0, 1.0], 1.0, line_data, c.transform, g);
+                        let mut color = [1.0, 0.0, 0.0, 1.0];
+
+                        if let Some(sel_index) = view.sel_surface {
+                            if sel_index == i {
+                                color = [0.0, 1.0, 0.0, 1.0];
+                            }
+                        }
+
+                        line(color, 1.0, line_data, c.transform, g);
                     }
 
                     // Drawing the vertexes

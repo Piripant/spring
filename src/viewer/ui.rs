@@ -56,6 +56,28 @@ pub fn run_ui(ui: &mut Ui, view: &mut ViewState) -> (bool, bool) {
             });
     }
 
+    if let Some(index) = view.sel_surface {
+        let surface = &mut view.world.surfaces[index];
+        ui.window(im_str!("Surface"))
+            .size((300.0, 600.0), ImGuiCond::FirstUseEver)
+            .build(|| {
+                ui.text(im_str!("ID: {}", index));
+                ui.text(im_str!("Vertex A: {}", surface.index_a));
+                ui.text(im_str!("Vertex B: {}", surface.index_b));
+
+                ui.text(im_str!("Target distance: {}", surface.target_distance));
+
+                ui.input_float(im_str!("Damping ratio"), &mut surface.damping_ratio)
+                    .build();
+                ui.input_float(im_str!("Strength"), &mut surface.strength)
+                    .build();
+                ui.input_float(im_str!("Friction"), &mut surface.friction)
+                    .build();
+                ui.input_float(im_str!("Resitution"), &mut surface.resitution)
+                    .build();
+            });
+    }
+
     (ui.want_capture_mouse(), ui.want_capture_keyboard())
 }
 

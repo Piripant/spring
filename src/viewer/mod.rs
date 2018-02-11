@@ -23,6 +23,7 @@ pub struct ViewState {
 
     edit_mode: EditMode,
     sel_vertex: Option<usize>,
+    sel_surface: Option<usize>,
 }
 
 impl ViewState {
@@ -37,6 +38,7 @@ impl ViewState {
             center: Vector::new(0.0, 0.0),
             edit_mode: EditMode::Select,
             sel_vertex: None,
+            sel_surface: None,
         }
     }
 

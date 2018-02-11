@@ -126,6 +126,10 @@ pub fn handle_mouse(view: &mut ViewState, input: &mut InputState, dt: f64) {
         // Set the selected vertex to the vertex under the cursor
         view.sel_vertex = view.world
             .get_vertex_at(&mouse_position, view.vertex_scale * 2.0);
+
+        // Set the selected surface to the surface under the cursor
+        view.sel_surface = view.world
+            .get_surface_at(&mouse_position, view.vertex_scale * 2.0);
     }
 
     // When the mouse button is being held
@@ -143,7 +147,7 @@ fn handle_select(view: &mut ViewState, button: &MouseButton, mouse_position: &Ve
     if let MouseButton::Left = *button {
         if let Some(index) = view.sel_vertex {
             if view.sim_speed != 0.0 {
-                // Move the selected vertex TOWARDS the cursor
+                // Move the selected vertex TOWARDS the cursor (NOT EXACTLY ON)
                 let mut vertex = view.world.verts[index].borrow_mut();
                 let position = vertex.position;
 
@@ -151,7 +155,7 @@ fn handle_select(view: &mut ViewState, button: &MouseButton, mouse_position: &Ve
                 force = force.normalize() * 250.0;
                 vertex.apply_force(force);
             } else {
-                // Move the selected vertex ON the cursor
+                // Move the selected vertex EXACTLY ON the cursor
                 let surfaces = view.world.get_vertex_surfaces(index);
                 let mut vertex = view.world.verts[index].borrow_mut();
                 vertex.position = *mouse_position;
@@ -166,7 +170,7 @@ fn handle_select(view: &mut ViewState, button: &MouseButton, mouse_position: &Ve
                         view.world.verts[surface.index_a].borrow()
                     };
 
-                    surface.original_distance = (vertex.position - other_vertex.position).norm();
+                    surface.target_distance = (vertex.position - other_vertex.position).norm();
                 }
             }
         }
@@ -205,6 +209,7 @@ fn handle_edit(view: &mut ViewState, button: &MouseButton, mouse_position: &Vect
                 let clicked_surface = view.world.get_surface_at(mouse_position, 0.5);
                 if let Some(surface_index) = clicked_surface {
                     view.world.surfaces.remove(surface_index);
+                    view.sel_surface = None;
                 }
             }
         }

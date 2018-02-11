@@ -8,7 +8,7 @@ pub struct Surface {
 
     pub damping_ratio: f32,
     pub strength: f32,
-    pub original_distance: f64,
+    pub target_distance: f64,
 
     pub friction: f32,
     pub resitution: f32,
@@ -24,7 +24,7 @@ impl Surface {
             index_b,
             damping_ratio: 1.0,
             strength: 40.0,
-            original_distance: (vertex_a.position - vertex_b.position).norm(),
+            target_distance: (vertex_a.position - vertex_b.position).norm(),
             friction: 1.0,
             resitution: 1.0,
         }
@@ -40,7 +40,7 @@ impl Surface {
 
         let delta = vertex_a.position - vertex_b.position;
         let relative_velocity = vertex_a.velocity - vertex_b.velocity;
-        let extention = delta.norm() - self.original_distance;
+        let extention = delta.norm() - self.target_distance;
         // The velocity of the bodies in the direction of each other
         // How fast they are approaching
         let approach_velocity = delta.normalize() * relative_velocity.dot(&delta.normalize());
