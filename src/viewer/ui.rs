@@ -7,6 +7,7 @@ use piston_window::*;
 pub fn run_ui(ui: &mut Ui, view: &mut ViewState) -> (bool, bool) {
     let mut sim_speed = view.sim_speed as f32;
     let mut vertex_scale = view.vertex_scale as f32;
+    let mut iterations = view.iterations as i32;
 
     ui.window(im_str!("Simulation Settings"))
         .size((300.0, 100.0), ImGuiCond::FirstUseEver)
@@ -17,25 +18,33 @@ pub fn run_ui(ui: &mut Ui, view: &mut ViewState) -> (bool, bool) {
 
             ui.separator();
 
-            let speed_slider =
-                ui.slider_float(im_str!("Simulation speed"), &mut sim_speed, 0.0, 1.0);
-            speed_slider.build();
 
-            let vscale_slider = ui.slider_float(
+            ui.slider_float(im_str!("Simulation speed"), &mut sim_speed, 0.0, 1.0)
+                .build();
+            ui.input_int(im_str!("Physics iterations"), &mut iterations)
+                .build();
+            ui.checkbox(im_str!("Collisions"), &mut view.collisions);
+
+            ui.separator();
+
+            ui.slider_float(im_str!("Pull Force"), &mut view.pull_force, 100.0, 500.0)
+                .build();
+            ui.slider_float(
                 im_str!("Vertex Graphical Size"),
                 &mut vertex_scale,
                 0.0,
                 1.0,
-            );
-            vscale_slider.build();
+            ).build();
         });
 
     view.sim_speed = sim_speed as f64;
     view.vertex_scale = vertex_scale as f64;
-
+    view.iterations = if iterations < 0 { 0 } else { iterations as u32 };
 
     if let Some(index) = view.sel_vertex {
         let mut vertex = view.world.verts[index].borrow_mut();
+        // Store the mass to later check for edge cases
+        let mut input_mass = vertex.mass;
         ui.window(im_str!("Vertex"))
             .size((300.0, 600.0), ImGuiCond::FirstUseEver)
             .build(|| {
@@ -51,9 +60,16 @@ pub fn run_ui(ui: &mut Ui, view: &mut ViewState) -> (bool, bool) {
                     vertex.velocity.y
                 ));
 
-                ui.input_float(im_str!("Mass"), &mut vertex.mass).build();
+                ui.input_float(im_str!("Mass"), &mut input_mass).build();
                 ui.checkbox(im_str!("Static"), &mut vertex.is_static);
             });
+
+        // Set the mass only if the input is not 0
+        vertex.mass = if input_mass != 0.0 {
+            input_mass
+        } else {
+            vertex.mass
+        };
     }
 
     if let Some(index) = view.sel_surface {

@@ -152,7 +152,7 @@ fn handle_select(view: &mut ViewState, button: &MouseButton, mouse_position: &Ve
                 let position = vertex.position;
 
                 let mut force = mouse_position - position;
-                force = force.normalize() * 250.0;
+                force = force.normalize() * view.pull_force as f64;
                 vertex.apply_force(force);
             } else {
                 // Move the selected vertex EXACTLY ON the cursor

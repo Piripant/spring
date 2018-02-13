@@ -40,7 +40,12 @@ pub fn view_loop(mut view: ViewState) {
         view.world.debug.vectors.clear();
         view.physics_dt = get_elapsed(&time);
         time = SystemTime::now();
-        view.world.update(view.physics_dt * view.sim_speed, 8);
+
+        view.world.update(
+            view.physics_dt * view.sim_speed,
+            view.iterations,
+            view.collisions,
+        );
 
         // When the window is resize the gui renderer must be regeretated
         // With the new window.factory containing the new height and width

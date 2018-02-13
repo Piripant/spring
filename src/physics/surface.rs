@@ -22,10 +22,10 @@ impl Surface {
         Surface {
             index_a,
             index_b,
-            damping_ratio: 1.0,
-            strength: 40.0,
+            damping_ratio: 0.5,
+            strength: 30.0,
             target_distance: (vertex_a.position - vertex_b.position).norm(),
-            friction: 1.0,
+            friction: 0.5,
             resitution: 1.0,
         }
     }

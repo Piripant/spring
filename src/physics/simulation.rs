@@ -202,7 +202,7 @@ impl World {
         }
     }
 
-    pub fn update(&mut self, dt: f64, iterations: u32) {
+    pub fn update(&mut self, dt: f64, iterations: u32, collisions: bool) {
         let dt = dt / iterations as f64;
         for _ in 0..iterations {
             for surface in &self.surfaces {
@@ -222,8 +222,10 @@ impl World {
                 }
             }
 
-            for _ in 0..iterations {
-                self.resolve_collisions(dt);
+            if collisions {
+                for _ in 0..iterations {
+                    self.resolve_collisions(dt);
+                }
             }
 
             for i in 0..self.verts.len() {
