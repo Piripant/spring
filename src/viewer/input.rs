@@ -220,10 +220,10 @@ fn handle_edit(view: &mut ViewState, button: &MouseButton, mouse_position: &Vect
 fn handle_move(view: &mut ViewState, input: &InputState, dt: f64) {
     for key in &input.held_keys {
         match *key {
-            Key::W => view.offset.y += 200.0 * dt,
-            Key::S => view.offset.y -= 200.0 * dt,
-            Key::A => view.offset.x -= 200.0 * dt,
-            Key::D => view.offset.x += 200.0 * dt,
+            Key::W => view.offset.y += 20.0 * dt,
+            Key::S => view.offset.y -= 20.0 * dt,
+            Key::A => view.offset.x -= 20.0 * dt,
+            Key::D => view.offset.x += 20.0 * dt,
             _ => {}
         }
     }

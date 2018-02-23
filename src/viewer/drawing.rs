@@ -53,14 +53,13 @@ pub fn view_loop(mut view: ViewState) {
             gui_renderer.update_render_target(window.output_color.clone());
         }
 
-
         if let Some(args) = e.render_args() {
             let dt = get_elapsed(&render_time);
             if dt >= target_dt {
                 // Reset the clock
                 render_time = SystemTime::now();
-                //view.center.y = window.size().height as f64;
-                //view.center.x = window.size().width as f64;
+                view.window_size.y = window.size().height as f64;
+                view.window_size.x = window.size().width as f64;
 
                 window.draw_2d(&e, |c, g| {
                     clear([1.0; 4], g);

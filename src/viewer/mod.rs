@@ -22,7 +22,7 @@ pub struct ViewState {
     vertex_scale: f64,
     scale: f64,
     offset: Vector,
-    center: Vector,
+    window_size: Vector,
 
     edit_mode: EditMode,
     sel_vertex: Option<usize>,
@@ -40,25 +40,25 @@ impl ViewState {
             pull_force: 250.0,
             vertex_scale: 0.25,
             scale: 60.0,
-            offset: Vector::new(200.0, 400.0),
-            center: Vector::new(0.0, 0.0),
+            offset: Vector::new(0.0, 0.0),
+            window_size: Vector::new(0.0, 0.0),
             edit_mode: EditMode::Select,
             sel_vertex: None,
             sel_surface: None,
         }
     }
 
-    pub fn to_world_point(&self, point: &Vector) -> Vector {
+    fn to_screen_point(&self, point: &Vector) -> Vector {
         Vector::new(
-            (point.x + self.offset.x + self.center.x) / self.scale,
-            (self.offset.y + self.center.y - point.y) / self.scale,
+            (point.x - self.offset.x) * self.scale + self.window_size.x / 2.0,
+            -(point.y - self.offset.y) * self.scale + self.window_size.y / 2.0,
         )
     }
 
-    fn to_screen_point(&self, point: &Vector) -> Vector {
+    pub fn to_world_point(&self, point: &Vector) -> Vector {
         Vector::new(
-            point.x * self.scale - self.offset.x - self.center.x,
-            -point.y * self.scale + self.offset.y + self.center.y,
+            (point.x - self.window_size.x / 2.0) / self.scale + self.offset.x,
+            (-point.y + self.window_size.y / 2.0) / self.scale + self.offset.y,
         )
     }
 }
