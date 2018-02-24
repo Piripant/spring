@@ -111,7 +111,7 @@ pub fn colliding(vertex: &Vertex, a: &Vertex, b: &Vertex, dt: f64) -> bool {
 
 /// Resolves the impulses between a `vertex` and a segment `ab`
 pub fn resolve_impulses(vertex: &mut Vertex, a: &mut Vertex, b: &mut Vertex, surface: &Surface) {
-    let e = surface.resitution as f64;
+    let e = surface.restitution as f64;
 
     let normal = normal(&vertex.position, &a.position, &b.position);
 

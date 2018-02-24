@@ -18,7 +18,6 @@ pub fn run_ui(ui: &mut Ui, view: &mut ViewState) -> (bool, bool) {
 
             ui.separator();
 
-
             ui.slider_float(im_str!("Simulation speed"), &mut sim_speed, 0.0, 1.0)
                 .build();
             ui.input_int(im_str!("Physics iterations"), &mut iterations)
@@ -89,7 +88,7 @@ pub fn run_ui(ui: &mut Ui, view: &mut ViewState) -> (bool, bool) {
                     .build();
                 ui.input_float(im_str!("Friction"), &mut surface.friction)
                     .build();
-                ui.input_float(im_str!("Resitution"), &mut surface.resitution)
+                ui.input_float(im_str!("Resitution"), &mut surface.restitution)
                     .build();
             });
     }

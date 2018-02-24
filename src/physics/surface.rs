@@ -11,7 +11,7 @@ pub struct Surface {
     pub target_distance: f64,
 
     pub friction: f32,
-    pub resitution: f32,
+    pub restitution: f32,
 }
 
 impl Surface {
@@ -26,7 +26,7 @@ impl Surface {
             strength: 30.0,
             target_distance: (vertex_a.position - vertex_b.position).norm(),
             friction: 0.5,
-            resitution: 1.0,
+            restitution: 1.0,
         }
     }
 
