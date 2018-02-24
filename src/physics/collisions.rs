@@ -15,7 +15,6 @@ pub fn distance_vector(vertex: &Vector2<f64>, a: &Vector2<f64>, b: &Vector2<f64>
     cross(b - vertex, vertex - a)
 }
 
-
 fn get_crossing(a: &Vector, b: &Vector, c: &Vector, d: &Vector) -> bool {
     distance_vector(a, c, d).signum() != distance_vector(b, c, d).signum()
         && distance_vector(c, a, b).signum() != distance_vector(d, a, b).signum()
@@ -107,14 +106,12 @@ pub fn colliding(vertex: &Vertex, a: &Vertex, b: &Vertex, dt: f64) -> bool {
     let colliding_vertex = (vertex.position - a.position).norm() < VERTEX_RADIUS
         || (vertex.position - b.position).norm() < VERTEX_RADIUS;
 
-
     colliding_poly || colliding_segment || colliding_vertex
 }
 
-
 /// Resolves the impulses between a `vertex` and a segment `ab`
 pub fn resolve_impulses(vertex: &mut Vertex, a: &mut Vertex, b: &mut Vertex, surface: &Surface) {
-    let e = 1.0;
+    let e = surface.resitution as f64;
 
     let normal = normal(&vertex.position, &a.position, &b.position);
 

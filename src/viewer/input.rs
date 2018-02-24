@@ -141,6 +141,9 @@ pub fn handle_mouse(view: &mut ViewState, input: &mut InputState, dt: f64) {
     }
 
     view.scale += input.mouse_wheel * dt * 100.0;
+    if view.scale < 1.0 {
+        view.scale = 1.0;
+    }
 }
 
 fn handle_select(view: &mut ViewState, button: &MouseButton, mouse_position: &Vector) {
@@ -220,10 +223,10 @@ fn handle_edit(view: &mut ViewState, button: &MouseButton, mouse_position: &Vect
 fn handle_move(view: &mut ViewState, input: &InputState, dt: f64) {
     for key in &input.held_keys {
         match *key {
-            Key::W => view.offset.y += 20.0 * dt,
-            Key::S => view.offset.y -= 20.0 * dt,
-            Key::A => view.offset.x -= 20.0 * dt,
-            Key::D => view.offset.x += 20.0 * dt,
+            Key::W => view.offset.y += 400.0 * dt / view.scale,
+            Key::S => view.offset.y -= 400.0 * dt / view.scale,
+            Key::A => view.offset.x -= 400.0 * dt / view.scale,
+            Key::D => view.offset.x += 400.0 * dt / view.scale,
             _ => {}
         }
     }
