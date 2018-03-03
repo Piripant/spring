@@ -5,7 +5,7 @@ authors = ["Piripant <piripant@gmail.com>"]
 
 [dependencies]
 gfx = "0.16"
-imgui = "0.0.17"
-imgui-sys = { version = "0.0.17", features = ["gfx"] }
+imgui = "0.0.18"
+imgui-sys = { version = "0.0.18", features = ["gfx"] }
 piston_window = "0.74.0"
-nalgebra = "0.13.1"
+nalgebra = "0.14.0"
