@@ -65,7 +65,6 @@ impl World {
             },
         }
     }
-    
 
     /*
      #    # ###### #####  ##### ###### #    # ######  ####  
@@ -146,7 +145,9 @@ impl World {
 
             let collision_point = a.position + projection;
             let distance = (collision_point - position).norm();
-            if distance < radius && collision_point.x >= f64::min(a.position.x, b.position.x) && collision_point.x <= f64::max(a.position.x, b.position.x) {
+            if distance < radius && collision_point.x >= f64::min(a.position.x, b.position.x)
+                && collision_point.x <= f64::max(a.position.x, b.position.x)
+            {
                 return Some(index);
             }
         }
@@ -165,7 +166,6 @@ impl World {
         let ord_a = usize::min(index_a, index_b);
         let ord_b = usize::max(index_a, index_b);
 
-
         // If the surface is not already present
         for surface in &self.surfaces {
             if surface.index_a == ord_a && surface.index_b == ord_b {
@@ -174,7 +174,8 @@ impl World {
         }
 
         // Add the surface to the surfaces
-        self.surfaces.push(Surface::new(ord_a, ord_b, &mut self.verts));
+        self.surfaces
+            .push(Surface::new(ord_a, ord_b, &mut self.verts));
     }
 
     /*
@@ -195,7 +196,12 @@ impl World {
                     let mut segment_b = self.verts[surface.index_b].borrow_mut();
 
                     if collisions::colliding(&vertex, &segment_a, &segment_b, dt) {
-                        collisions::resolve_impulses(&mut vertex, &mut segment_a, &mut segment_b, surface);
+                        collisions::resolve_impulses(
+                            &mut vertex,
+                            &mut segment_a,
+                            &mut segment_b,
+                            surface,
+                        );
                     }
                 }
             }

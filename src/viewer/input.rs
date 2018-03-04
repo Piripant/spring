@@ -5,6 +5,7 @@ use piston_window::*;
 
 pub struct InputState {
     pub cursor: Vector,
+    pub last_cursor: Vector,
     pub pressed_mouse: Option<MouseButton>,
     pub held_mouse: Option<MouseButton>,
     pub mouse_wheel: f64,
@@ -17,6 +18,7 @@ impl InputState {
     pub fn new() -> InputState {
         InputState {
             cursor: Vector::new(0.0, 0.0),
+            last_cursor: Vector::new(0.0, 0.0),
             pressed_mouse: None,
             held_mouse: None,
             mouse_wheel: 0.0,
@@ -45,6 +47,8 @@ impl InputState {
         self.released_keys.clear();
 
         self.mouse_wheel = 0.0;
+
+        self.last_cursor = self.cursor;
     }
 
     /// Updates the current Input State
@@ -120,7 +124,7 @@ pub fn handle_mouse(view: &mut ViewState, input: &mut InputState, dt: f64) {
         let mouse_position = view.to_world_point(&input.cursor);
 
         if let EditMode::Create = view.edit_mode {
-            handle_edit(view, &button, &mouse_position);
+            handle_edit(view, &input, &button);
         }
 
         // Set the selected vertex to the vertex under the cursor
@@ -135,22 +139,22 @@ pub fn handle_mouse(view: &mut ViewState, input: &mut InputState, dt: f64) {
     // When the mouse button is being held
     if let Some(button) = input.held_mouse {
         if let EditMode::Select = view.edit_mode {
-            let mouse_position = view.to_world_point(&input.cursor);
-            handle_select(view, &button, &mouse_position);
+            handle_select(view, &input, &button);
         }
     }
 
-    view.scale += input.mouse_wheel * dt * 100.0;
+    view.scale += input.mouse_wheel * 5.0;
     if view.scale < 1.0 {
         view.scale = 1.0;
     }
 }
 
-fn handle_select(view: &mut ViewState, button: &MouseButton, mouse_position: &Vector) {
+fn handle_select(view: &mut ViewState, input: &InputState, button: &MouseButton) {
+    let mouse_position = view.to_world_point(&input.cursor);
     if let MouseButton::Left = *button {
         if let Some(index) = view.sel_vertex {
             if view.sim_speed != 0.0 {
-                // Move the selected vertex TOWARDS the cursor (NOT EXACTLY ON)
+                // Move the selected vertex TOWARDS the cursor
                 let mut vertex = view.world.verts[index].borrow_mut();
                 let position = vertex.position;
 
@@ -158,10 +162,12 @@ fn handle_select(view: &mut ViewState, button: &MouseButton, mouse_position: &Ve
                 force = force.normalize() * view.pull_force as f64;
                 vertex.apply_force(force);
             } else {
-                // Move the selected vertex EXACTLY ON the cursor
+                // Move the selected vertex as much as the cursor has moved
                 let surfaces = view.world.get_vertex_surfaces(index);
                 let mut vertex = view.world.verts[index].borrow_mut();
-                vertex.position = *mouse_position;
+
+                let last_mouse = view.to_world_point(&input.last_cursor);
+                vertex.position += mouse_position - last_mouse;
 
                 // Adjust the surface distances accordingly
                 for i in surfaces {
@@ -180,11 +186,12 @@ fn handle_select(view: &mut ViewState, button: &MouseButton, mouse_position: &Ve
     }
 }
 
-fn handle_edit(view: &mut ViewState, button: &MouseButton, mouse_position: &Vector) {
+fn handle_edit(view: &mut ViewState, input: &InputState, button: &MouseButton) {
+    let mouse_position = view.to_world_point(&input.cursor);
     match *button {
         MouseButton::Left => {
             let clicked_vertex = view.world
-                .get_vertex_at(mouse_position, view.vertex_scale * 2.0);
+                .get_vertex_at(&mouse_position, view.vertex_scale * 2.0);
             // If the user clicked on vertex make a surface
             if let Some(index) = clicked_vertex {
                 // If there was an vertex already selected make a surface
@@ -196,12 +203,12 @@ fn handle_edit(view: &mut ViewState, button: &MouseButton, mouse_position: &Vect
             }
             // If the user clicked on nothing create a new vertex
             else {
-                view.world.add_vertex(Vertex::new(*mouse_position));
+                view.world.add_vertex(Vertex::new(mouse_position));
             }
         }
         MouseButton::Right => {
             let clicked_vertex = view.world
-                .get_vertex_at(mouse_position, view.vertex_scale * 2.0);
+                .get_vertex_at(&mouse_position, view.vertex_scale * 2.0);
 
             // Remove the clicked vertex
             if let Some(vertex_index) = clicked_vertex {
@@ -209,7 +216,7 @@ fn handle_edit(view: &mut ViewState, button: &MouseButton, mouse_position: &Vect
                 view.sel_vertex = None;
             } else {
                 // Remove the clicked surface if any
-                let clicked_surface = view.world.get_surface_at(mouse_position, 0.5);
+                let clicked_surface = view.world.get_surface_at(&mouse_position, 0.5);
                 if let Some(surface_index) = clicked_surface {
                     view.world.surfaces.remove(surface_index);
                     view.sel_surface = None;
