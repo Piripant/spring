@@ -15,11 +15,13 @@ pub fn distance_vector(vertex: &Vector2<f64>, a: &Vector2<f64>, b: &Vector2<f64>
     cross(b - vertex, vertex - a)
 }
 
+#[inline]
 fn get_crossing(a: &Vector, b: &Vector, c: &Vector, d: &Vector) -> bool {
     distance_vector(a, c, d).signum() != distance_vector(b, c, d).signum()
         && distance_vector(c, a, b).signum() != distance_vector(d, a, b).signum()
 }
 
+#[inline]
 fn ray_intersect_seg(mut p: Vector, mut a: Vector, mut b: Vector) -> bool {
     use std;
     use std::f64;
@@ -53,6 +55,7 @@ fn ray_intersect_seg(mut p: Vector, mut a: Vector, mut b: Vector) -> bool {
     }
 }
 
+#[inline]
 fn get_inside(quad: [&Vector; 4], p: &Vector) -> bool {
     let p = p.clone();
 
@@ -71,6 +74,7 @@ fn get_inside(quad: [&Vector; 4], p: &Vector) -> bool {
     count % 2 == 1
 }
 
+#[inline]
 fn get_colliding_poly(quad: [&Vector; 4], segment: [&Vector; 2]) -> bool {
     for i in 0..quad.len() {
         let ni = (i + 1) % quad.len();

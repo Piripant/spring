@@ -114,11 +114,9 @@ pub fn handle_keyboard(view: &mut ViewState, input: &mut InputState, dt: f64) {
             _ => {}
         }
     }
-
-    handle_move(view, input, dt);
 }
 
-pub fn handle_mouse(view: &mut ViewState, input: &mut InputState, dt: f64) {
+pub fn handle_mouse(view: &mut ViewState, input: &mut InputState) {
     // When the mouse button has just been pressed
     if let Some(button) = input.pressed_mouse {
         let mouse_position = view.to_world_point(&input.cursor);
@@ -142,6 +140,8 @@ pub fn handle_mouse(view: &mut ViewState, input: &mut InputState, dt: f64) {
             handle_select(view, &input, &button);
         }
     }
+
+    handle_move(view, input);
 
     view.scale += input.mouse_wheel * 5.0;
     if view.scale < 1.0 {
@@ -227,14 +227,10 @@ fn handle_edit(view: &mut ViewState, input: &InputState, button: &MouseButton) {
     }
 }
 
-fn handle_move(view: &mut ViewState, input: &InputState, dt: f64) {
-    for key in &input.held_keys {
-        match *key {
-            Key::W => view.offset.y += 400.0 * dt / view.scale,
-            Key::S => view.offset.y -= 400.0 * dt / view.scale,
-            Key::A => view.offset.x -= 400.0 * dt / view.scale,
-            Key::D => view.offset.x += 400.0 * dt / view.scale,
-            _ => {}
-        }
+fn handle_move(view: &mut ViewState, input: &InputState) {
+    if let Some(MouseButton::Right) = input.held_mouse {
+        let mut delta = input.last_cursor - input.cursor;
+        delta.y = -delta.y;
+        view.offset += delta / view.scale;
     }
 }

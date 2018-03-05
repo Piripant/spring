@@ -133,7 +133,7 @@ pub fn view_loop(mut view: ViewState) {
                     input::handle_keyboard(&mut view, &mut input_state, dt);
                 }
                 if !capture_mouse {
-                    input::handle_mouse(&mut view, &mut input_state, dt);
+                    input::handle_mouse(&mut view, &mut input_state);
                 }
                 input_state.processed();
 
